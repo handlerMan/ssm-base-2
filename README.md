@@ -23,7 +23,7 @@
 
       @Override
       public IBaseDao<Student> getBaseDao() {
-	return mapper;
+	  return mapper;
       }
       //提供实体类的 class 对象
       @Override
@@ -38,24 +38,25 @@
       }
               
 ### 4、Controller：继承  BaseController<T>
-     @Controller 
-     @RequestMapping("/stu")
-     public class StuController extends BaseController<Student> {
-
-      @Autowired
-      private  IStudentService studentService  ;
-      //分页查询
-      @RequestMapping("/queryByPage")
-      public String queryByPage( Model model , Page page, HttpServletRequest request ) {
-	page = studentService.queryByPage( page );
-	model.addAttribute("page",page);
-	System.out.println(page);
-	return "stulist";
-      }
-    }
+     
+	@Controller 
+	@RequestMapping("/stu")
+	public class StuController extends BaseController<Student> {
+	@Autowired
+	private  IStudentService studentService  ;
+	//分页查询
+	@RequestMapping("/queryByPage")
+	public String queryByPage( Model model , Page page, HttpServletRequest request ) {
+		page = studentService.queryByPage( page );
+		model.addAttribute("page",page);
+		System.out.println(page);
+		return "stulist";
+      		}
+    	}
     
 ### 5、  分页界面参考
-        <%@ page language="java" contentType="text/html; charset=UTF-8"
+        
+	<%@ page language="java" contentType="text/html; charset=UTF-8"
             pageEncoding="UTF-8"%>
         <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>    
           <div>
