@@ -15,22 +15,22 @@
       }
       
 #### Service 实现类 继承 BaseService<T>
-    @Service
-    public class StudentService extends BaseService<Student> implements IStudentService {
+	@Service
+	public class StudentService extends BaseService<Student> implements IStudentService {
 
-      @Autowired
-      private StudentMapper mapper;
+		@Autowired
+		private StudentMapper mapper;
 
-      @Override
-      public IBaseDao<Student> getBaseDao() {
-	  return mapper;
-      }
-      //提供实体类的 class 对象
-      @Override
-      public Class<Student> getClasss() {
-	return Student.class;
-      }
-    }
+		@Override
+		public IBaseDao<Student> getBaseDao() {
+		  return mapper;
+		}
+		//提供实体类的 class 对象
+		@Override
+		public Class<Student> getClasss() {
+			return Student.class;
+		}
+	}
 ### 3、dao层
 #### 接口：实现 IBaseDao<T>
      public interface StudentMapper extends IBaseDao<Student> {
@@ -54,40 +54,40 @@
       		}
     	}
     
-### 5、  分页界面参考
+### 5、分页界面参考
         
 	<%@ page language="java" contentType="text/html; charset=UTF-8"
-            pageEncoding="UTF-8"%>
-        <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>    
-          <div>
-            <c:if test="${page.page==1 }">
-              <a>首页</a>
-              <a>上一页</a>
-            </c:if>
-            <c:if test="${page.page>1 }">
-              <a href="${page.url }&page=1">首页</a>
-              <a href="${page.url }&page=${page.page-1}">上一页</a>
-            </c:if>
+	    pageEncoding="UTF-8"%>
+	<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>    
+	  <div>
+	    <c:if test="${page.page==1 }">
+	      <a>首页</a>
+	      <a>上一页</a>
+	    </c:if>
+	    <c:if test="${page.page>1 }">
+	      <a href="${page.url }&page=1">首页</a>
+	      <a href="${page.url }&page=${page.page-1}">上一页</a>
+	    </c:if>
 
-            <!-- 页码 -->
-            <c:forEach items="${page.indexs }" var="index">		
-              <c:if test="${index == page.page }">
-                <b>${index}</b>
-              </c:if>
-              <c:if test="${index != page.page }">
-                <a href="${page.url }&page=${index}"><b>${index}</b></a>
-              </c:if>
-            </c:forEach>
+	    <!-- 页码 -->
+	    <c:forEach items="${page.indexs }" var="index">		
+	      <c:if test="${index == page.page }">
+		<b>${index}</b>
+	      </c:if>
+	      <c:if test="${index != page.page }">
+		<a href="${page.url }&page=${index}"><b>${index}</b></a>
+	      </c:if>
+	    </c:forEach>
 
-            <c:if test="${page.page<page.max }">
-              <a href="${page.url }&page=${page.page+1}">下一页</a>
-              <a href="${page.url }&page=${page.max}">尾页</a>
-            </c:if>
-            <c:if test="${page.page==page.max }">
-              <a >下一页</a>
-              <a >尾页</a>
-            </c:if>
+	    <c:if test="${page.page<page.max }">
+	      <a href="${page.url }&page=${page.page+1}">下一页</a>
+	      <a href="${page.url }&page=${page.max}">尾页</a>
+	    </c:if>
+	    <c:if test="${page.page==page.max }">
+	      <a >下一页</a>
+	      <a >尾页</a>
+	    </c:if>
 
-            <a>当前第${page.page }页/共${page.max }页</a>		
-          </div>
+	    <a>当前第${page.page }页/共${page.max }页</a>		
+	  </div>
 
