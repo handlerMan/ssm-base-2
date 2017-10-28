@@ -1,14 +1,13 @@
-# ssm-base-2
 
-需要做如下配置：
-1、在Spring 的配置文件中将 MyBatis的映射文件交付spring管理 
-          <!-- 配置SqlSessionFactory -->
-          <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-                  ·······
-            <!-- 映射文件配置 -->
-            <property name="mapperLocations" value="classpath*:/**/*Mapper.xml" />   <!--  托管给spring  -->
-          </bean>
-2、Service层 
+## 需要做如下配置：
+### 1、在Spring 的配置文件中将 MyBatis的映射文件交付spring管理 
+	  <!-- 配置SqlSessionFactory -->
+	  <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		  ·······
+	    <!-- 映射文件配置 -->
+	    <property name="mapperLocations" value="classpath*:/**/*Mapper.xml" />   <!--  托管给spring  -->
+	  </bean>
+### 2、Service层 
    
         Service接口：继承IBaseService<T>
               public interface IStudentService extends IBaseService<Student> {
@@ -31,13 +30,13 @@
                 return Student.class;
               }
             }
-3、dao层
+### 3、dao层
           接口：实现 IBaseDao<T>
              public interface StudentMapper extends IBaseDao<Student> {
 	
               }
               
-4、Controller：继承  BaseController<T>
+### 4、Controller：继承  BaseController<T>
           @Controller 
           @RequestMapping("/stu")
           public class StuController extends BaseController<Student> {
@@ -53,7 +52,7 @@
                 return "stulist";
               }
             }
-5、  分页界面
+### 5、  分页界面
         <%@ page language="java" contentType="text/html; charset=UTF-8"
             pageEncoding="UTF-8"%>
         <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>    
