@@ -54,6 +54,7 @@ public class Page <T>{
 
 	public void setPage(Integer page) {
 		this.page = page;
+		count();
 	}
 
 	public Integer getSize() {
@@ -70,6 +71,7 @@ public class Page <T>{
 
 	public void setMax(Integer max) {
 		this.max = max;
+		count();
 	}
 
 	public Integer getCount() {
