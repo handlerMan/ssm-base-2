@@ -5,8 +5,14 @@
 	  <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		  ·······
 	    <!-- 映射文件配置 -->
-	    <property name="mapperLocations" value="classpath*:/**/*Mapper.xml" />   <!--  托管给spring  -->
+	    <!--  托管给spring -->
+	    <property name="mapperLocations" value="classpath*:/**/*Mapper.xml" />  
+	     <!-- 可以改包名 放到你的目录下 比如 com/uname/demo 下 的任意包中的  映射文件 ,也可以根据后缀做更加详细的扫描-->
+	   <!--<property name="mapperLocations" value="classpath:com/uname/demo/*/*.xml" />  -->
 	  </bean>
+	  
+	  
+	  
 ### 2、Service层 
    
 #### Service接口：继承IBaseService<T>
@@ -89,4 +95,11 @@
 
 	    <a>当前第${page.page }页/共${page.max }页</a>		
 	  </div>
+
+
+## 使用中
+	page.setWhere("age>20");  //分页查询可以自定义是否要添加查询条件，默认无条件：
+		
+
+
 
