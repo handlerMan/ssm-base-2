@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 @Controller
 public class BaseController <T> {
 	
+	
 	@InitBinder
 	public void initBinder( WebDataBinder binder , final HttpServletRequest request ){
 		binder.registerCustomEditor(Page.class,new PropertyEditorSupport(){
