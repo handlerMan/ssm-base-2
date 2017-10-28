@@ -4,8 +4,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="base.IBaseDao" >
-
-
 	<!-- 按id查找一个 -->
 	<select id="queryOne" parameterType="map" resultType="hashmap">
 		select * from ${name} where id=#{id}
