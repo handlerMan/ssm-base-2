@@ -1,12 +1,18 @@
- package base;
+ package base.service;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.aspectj.org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.springframework.stereotype.Service;
+
+import base.annotation.ToOne;
+import base.dao.IBaseDao;
+import base.entity.Page;
 
 @Service
 public abstract class BaseService<T> implements IBaseService<T>{
@@ -27,6 +33,11 @@ public abstract class BaseService<T> implements IBaseService<T>{
 		T t = hashMapToEntity(map);
 		return t;
 	}
+	public Map<Object, Object> queryOneByToOne( Class<?> claz, int id) {
+		Map<Object, Object> map =  getBaseDao().queryOneByToOne(claz.getSimpleName().toLowerCase(),id).get(0);
+		return map;
+	}
+	
 
 	@Override
 	public List<T> queryAll() {
@@ -51,7 +62,6 @@ public abstract class BaseService<T> implements IBaseService<T>{
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
-			
 		}
 		return getBaseDao().add( tableName , list.toArray() );
 	}
@@ -82,6 +92,7 @@ public abstract class BaseService<T> implements IBaseService<T>{
 		
 	}
 	
+	
 	@Override
 	public Page queryByPage(Page page) {
 		String tableName = clsss.getSimpleName().toLowerCase();
@@ -89,7 +100,26 @@ public abstract class BaseService<T> implements IBaseService<T>{
 		//查询 数据
 		List<HashMap<Object, Object>> listmap =  getBaseDao().queryByPage( tableName, (page.getPage()-1)*page.getSize() , page.getSize() ,page.getWhere() );
 		for (HashMap<Object, Object> hashMap : listmap) {
-			list.add( hashMapToEntity(hashMap) );
+			T t1 = hashMapToEntity(hashMap);
+			for (Field field : clsss.getDeclaredFields()) {
+				field.setAccessible(true);
+				//找到对一的注解
+				ToOne toOne = null;
+				if ( (toOne =field.getAnnotation(ToOne.class))!=null ) {
+					String colum = toOne.column();
+					Class<?> cl = toOne.entity();
+					Field f = null;
+					try {
+						f = clsss.getDeclaredField(colum);
+						f.setAccessible(true);
+						Map<Object, Object> map = queryOneByToOne(cl,  (Integer)f.get(t1) );
+						field.set(t1, hashMapToEntity(map, cl ));
+					} catch (NoSuchFieldException | SecurityException |IllegalArgumentException | IllegalAccessException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			list.add( t1 );
 		}
 		//将转换好的数据集合放入 Page 对象
 		page.setList(list);
@@ -98,6 +128,7 @@ public abstract class BaseService<T> implements IBaseService<T>{
 		page.setMax(page.getCount()<=page.getSize()?1:page.getCount()%page.getSize()>0?tmp+1:tmp);
 		return page;
 	}
+	
 	
 	//无条件查询记录数
 	public int queryCount() {
@@ -123,6 +154,20 @@ public abstract class BaseService<T> implements IBaseService<T>{
 			e1.printStackTrace();
 		}
 		return t;
+	}
+	
+	private Object hashMapToEntity( Map<Object, Object> map ,Class<?> cl) {
+		Object obj = null;
+		try {
+			obj = cl.newInstance();
+			for (Field f : obj.getClass().getDeclaredFields()) {
+				f.setAccessible(true);
+				f.set(obj,map.get(f.getName()));
+			}
+		} catch (InstantiationException | IllegalArgumentException | IllegalAccessException e1) {
+			e1.printStackTrace();
+		}
+		return obj;
 	}
 	
 }

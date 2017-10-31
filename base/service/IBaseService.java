@@ -1,6 +1,8 @@
-package base;
+package base.service;
 
 import java.util.List;
+
+import base.entity.Page;
 
 public interface IBaseService <T>{
 	 

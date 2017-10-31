@@ -1,4 +1,4 @@
-package base;
+package base.controller;
 
 import java.beans.PropertyEditorSupport;
 
@@ -8,9 +8,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 
+import base.entity.Page;
+
 @Controller
 public class BaseController <T> {
-	
 	
 	@InitBinder
 	public void initBinder( WebDataBinder binder , final HttpServletRequest request ){

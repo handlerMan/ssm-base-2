@@ -1,5 +1,6 @@
-package base;
+package base.dao;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,5 +19,8 @@ public interface IBaseDao <T> {
 	List<HashMap<Object, Object>> queryByPage( @Param("name")String name, @Param("page")int page, @Param("size")int size,@Param("where") String where);
 
 	int queryCount( @Param("name")String lowerCase , @Param("where") String where);
+
+	List<HashMap<Object, Object>> queryOneByToOne(@Param("name")String lowerCase, @Param("cid")int id);
+
 	
 }
