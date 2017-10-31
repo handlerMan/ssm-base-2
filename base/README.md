@@ -89,4 +89,15 @@
 
 	    <a>当前第${page.page }页/共${page.max }页</a>		
 	  </div>
-
+### 6、级联查询（对一）
+##### 在实体类中放入一个需要级联的对象的实例并附上 @ToOne()注解 ，并提供要级联对象的 class对象 和当前类作为级联的外键，如：
+	public class Student {
+		private Integer id;
+		private String name;
+		private Integer cid; //班级id
+		
+		@ToOne(entity=ClassTab.class,column="cid")
+		private ClassTab classtab;
+	 }
+	
+	
