@@ -7,7 +7,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface IBaseDao <T> {
-
+  
 	List<HashMap<Object, Object>> queryOne( @Param("name") String name,@Param("id")int id );
 	
 	List<HashMap<Object, Object>> queryAll( @Param("name") String name );
@@ -21,6 +21,5 @@ public interface IBaseDao <T> {
 	int queryCount( @Param("name")String lowerCase , @Param("where") String where);
 
 	List<HashMap<Object, Object>> queryOneByToOne(@Param("name")String lowerCase, @Param("cid")int id);
-
 	
 }
