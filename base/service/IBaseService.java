@@ -2,10 +2,12 @@ package base.service;
 
 import java.util.List;
 
-import base.entity.Page;
+import base.tool.Page;
 
 public interface IBaseService <T>{
 	 
+	void del( int id );
+	
 	T queryOne( int id );
 	
 	List<T> queryAll();
@@ -14,7 +16,6 @@ public interface IBaseService <T>{
 	
 	void update ( T t );
 	
-	Page queryByPage( Page<T> page );
-	
+	Page<T> queryByPage( Page<T> page );
 	
 }

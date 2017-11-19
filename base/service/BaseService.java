@@ -1,18 +1,17 @@
  package base.service;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
-import org.aspectj.org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.springframework.stereotype.Service;
 
 import base.annotation.ToOne;
 import base.dao.IBaseDao;
-import base.entity.Page;
+import base.tool.Page;
 
 @Service
 public abstract class BaseService<T> implements IBaseService<T>{
@@ -29,12 +28,14 @@ public abstract class BaseService<T> implements IBaseService<T>{
 	
 	@Override
 	public T queryOne(int id) {
-		Map<Object, Object> map =  getBaseDao().queryOne(clsss.getSimpleName().toLowerCase(),id).get(0);
+		String name = clsss.getSimpleName().toLowerCase();
+		Map<Object, Object> map =  getBaseDao().queryOne(name,id).get(0);
 		T t = hashMapToEntity(map);
 		return t;
 	}
 	public Map<Object, Object> queryOneByToOne( Class<?> claz, int id) {
-		Map<Object, Object> map =  getBaseDao().queryOneByToOne(claz.getSimpleName().toLowerCase(),id).get(0);
+		String name = claz.getSimpleName().toLowerCase();
+		Map<Object, Object> map =  getBaseDao().queryOneByToOne(name,id).get(0);
 		return map;
 	}
 	
@@ -42,7 +43,8 @@ public abstract class BaseService<T> implements IBaseService<T>{
 	@Override
 	public List<T> queryAll() {
 		List<T> ts = new ArrayList<>();
-		List<HashMap<Object, Object>> list =  getBaseDao().queryAll( clsss.getSimpleName().toLowerCase() );
+		String name = clsss.getSimpleName().toLowerCase();
+		List<HashMap<Object, Object>> list =  getBaseDao().queryAll( name );
 		for (HashMap<Object, Object> hashMap : list) {
 			ts.add( hashMapToEntity( hashMap ) );
 		}
@@ -56,6 +58,9 @@ public abstract class BaseService<T> implements IBaseService<T>{
 		List<Object> list= new ArrayList<>();
 		//将参数放入数组中
 		for (Field field : t.getClass().getDeclaredFields()) {
+			if ( field.getAnnotation(ToOne.class) != null ) {
+				continue;
+			}
 			field.setAccessible(true);//权限
 			try {
 				list.add(field.get(t));
@@ -63,6 +68,7 @@ public abstract class BaseService<T> implements IBaseService<T>{
 				e.printStackTrace();
 			}
 		}
+	
 		return getBaseDao().add( tableName , list.toArray() );
 	}
 
@@ -94,36 +100,41 @@ public abstract class BaseService<T> implements IBaseService<T>{
 	
 	
 	@Override
-	public Page queryByPage(Page page) {
+	public Page<T> queryByPage(Page<T> page) {
 		String tableName = clsss.getSimpleName().toLowerCase();
 		List<T> list = new ArrayList<>();
-		//查询 数据
+		//分页 查询 数据   (表名，分页起始位置(利用mysql的limit),每页条数,[条件]) 
 		List<HashMap<Object, Object>> listmap =  getBaseDao().queryByPage( tableName, (page.getPage()-1)*page.getSize() , page.getSize() ,page.getWhere() );
 		for (HashMap<Object, Object> hashMap : listmap) {
 			T t1 = hashMapToEntity(hashMap);
-			for (Field field : clsss.getDeclaredFields()) {
-				field.setAccessible(true);
-				//找到对一的注解
-				ToOne toOne = null;
-				if ( (toOne =field.getAnnotation(ToOne.class))!=null ) {
-					String colum = toOne.column();
-					Class<?> cl = toOne.entity();
-					Field f = null;
-					try {
-						f = clsss.getDeclaredField(colum);
-						f.setAccessible(true);
-						Map<Object, Object> map = queryOneByToOne(cl,  (Integer)f.get(t1) );
-						field.set(t1, hashMapToEntity(map, cl ));
-					} catch (NoSuchFieldException | SecurityException |IllegalArgumentException | IllegalAccessException e) {
-						e.printStackTrace();
-					}
-				}
-			}
+//			for (Field field : clsss.getDeclaredFields()) {
+//				field.setAccessible(true);
+//				//找到对一的注解
+//				ToOne toOne = null;
+//				if ( (toOne =field.getAnnotation(ToOne.class))!=null ) {
+//					String colum = toOne.column();
+//					Class<?> cl = toOne.entity();
+//					Field f = null;
+//					try {
+//						f = clsss.getDeclaredField(colum);
+//						f.setAccessible(true);
+//						Map<Object, Object> map = queryOneByToOne(cl,  (Integer)f.get(t1) );
+//						field.set(t1, hashMapToEntity(map, cl ));
+//					} catch (NoSuchFieldException | SecurityException |IllegalArgumentException | IllegalAccessException e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			}
 			list.add( t1 );
 		}
 		//将转换好的数据集合放入 Page 对象
 		page.setList(list);
-		page.setCount( queryCount( page.getWhere() ) );
+		//根据条件查询数据条数
+		if ( page.getWhere()==null || page.getWhere().length()<=0 ) {
+			page.setCount( queryCount(  ) );
+		}else {
+			page.setCount( queryCount( page.getWhere() ) );
+		}
 		int tmp = page.getCount()/page.getSize();
 		page.setMax(page.getCount()<=page.getSize()?1:page.getCount()%page.getSize()>0?tmp+1:tmp);
 		return page;
@@ -132,11 +143,13 @@ public abstract class BaseService<T> implements IBaseService<T>{
 	
 	//无条件查询记录数
 	public int queryCount() {
-		return getBaseDao().queryCount( clsss.getSimpleName().toLowerCase() , "1=1" );
+		String tableName = clsss.getSimpleName().toLowerCase();
+		return getBaseDao().queryCount( tableName , "1=1" );
 	}
 	//有条件的查找记录数
 	public int queryCount(String where) {
-		return getBaseDao().queryCount( clsss.getSimpleName().toLowerCase() , where );
+		String tableName = clsss.getSimpleName().toLowerCase();
+		return getBaseDao().queryCount( tableName , where );
 	}
 	
 	/**
@@ -150,7 +163,7 @@ public abstract class BaseService<T> implements IBaseService<T>{
 				f.setAccessible(true);
 				f.set(t,map.get(f.getName()));
 			}
-		} catch (InstantiationException | IllegalArgumentException | IllegalAccessException e1) {
+		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
 		return t;
@@ -168,6 +181,11 @@ public abstract class BaseService<T> implements IBaseService<T>{
 			e1.printStackTrace();
 		}
 		return obj;
+	}
+	
+	@Override
+	public void del(int id) {
+		getBaseDao().del(clsss.getSimpleName().toLowerCase(), id);
 	}
 	
 }

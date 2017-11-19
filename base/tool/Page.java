@@ -1,4 +1,4 @@
-package base.entity;
+package base.tool;
 
 import java.util.ArrayList;
 import java.util.List;
